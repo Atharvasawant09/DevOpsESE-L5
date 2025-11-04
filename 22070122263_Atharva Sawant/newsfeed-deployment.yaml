@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: newsfeed-deployment
+  labels:
+    app: newsfeed
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: newsfeed
+  template:
+    metadata:
+      labels:
+        app: newsfeed
+    spec:
+      containers:
+      - name: newsfeed-container
+        image: newsfeed-app:30007
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 30007
+        
+        # ADD THESE HEALTH PROBES
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 30007
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 30007
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 2
+        
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
